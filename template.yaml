@@ -64,14 +64,14 @@ Resources:
 
 #Subnet 2
   Subnet2:
-      Type: AWS::EC2::Subnet
-      Properties:
-        VpcId: !Ref BankVPC
-        CidrBlock: 10.10.2.0/24
-        AvailabilityZone: "ap-southeast-1b"
-        MapPublicIpOnLaunch: yes
-        Tags:
-        - Key: "Name"
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref BankVPC
+      CidrBlock: 10.10.2.0/24
+      AvailabilityZone: "ap-southeast-1b"
+      MapPublicIpOnLaunch: yes
+      Tags:
+      - Key: "Name"
         Value: "Bank Subnet 2"
     
 # Subnet 3
@@ -122,3 +122,40 @@ Resources:
     Properties:
       SubnetId: !Ref Subnet3
       RouteTableId: !Ref BankRouteTable
+
+# EC2
+  BankLaunchTemplate: 
+    Type: 'AWS::EC2::LaunchTemplate'
+    Properties: 
+      LaunchTemplateName: BankLaunchTemplate
+      LaunchTemplateData:
+        InstanceType: t2.micro
+        ImageId: ami-0f403e3180720dd7e
+        SecurityGroupIds: 
+          - !Ref BankSG
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            yum update -y
+            yum install httpd -y
+            systemctl start httpd
+            systemctl enable httpd
+            amazon-linux-extras install epel -y
+            yum install stress -y
+            echo "<h1>Welcome To Level Up Bank </h1>" > /var/www/html/index.html
+
+# Auto Scaling Group
+  BankASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref BankLaunchTemplate
+        Version: !GetAtt BankLaunchTemplate.LatestVersionNumber
+      MaxSize: '5'
+      MinSize: '2'
+      VPCZoneIdentifier:   
+        - !Ref Subnet1
+        - !Ref Subnet2
+        - !Ref Subnet3
+      TargetGroupARNs:
+        - !Ref BankALBTargetGroup
