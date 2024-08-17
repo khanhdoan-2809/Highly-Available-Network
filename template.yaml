@@ -159,3 +159,14 @@ Resources:
         - !Ref Subnet3
       TargetGroupARNs:
         - !Ref BankALBTargetGroup
+
+# Scaling Policy
+  BankScalingPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref BankASG
+      PolicyType: TargetTrackingScaling
+      TargetTrackingConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ASGAverageCPUUtilization
+        TargetValue: '50'
