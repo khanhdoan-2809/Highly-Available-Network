@@ -16,7 +16,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow HTTP & SSH access
-      VpcId: !Ref LuBankVPC
+      VpcId: !Ref BankVPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -26,3 +26,14 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
+
+# Internet Gateway
+  BankInternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+# Attach IGW to VPC
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref BankVPC
+      InternetGatewayId: !Ref BankInternetGateway
