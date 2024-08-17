@@ -10,10 +10,9 @@ Resources:
       CidrBlock: 10.10.0.0/16
       EnableDnsSupport: 'true'
       EnableDnsHostnames: 'true'
-      Tags: 
-        - Key: "Name" 
-        Value: "Bank VPC"
-
+      Tags:
+        - Key: "Name"
+          Value: "Bank VPC"
 
 #Security Group
   BankSG:
@@ -30,17 +29,18 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
-      Tags: 
-        - Key: "Name" 
-        Value: "Security Group Bank VPC"
+      Tags:
+      - Key: "Name"
+        Value: "Bank Security Group"
 
 # Internet Gateway
   BankInternetGateway:
     Type: AWS::EC2::InternetGateway
-    Properties: 
-      Tags: 
-        - Key: "Name" 
-        Value: "Bank Internet Gateway"
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: "Bank Internet Gateway"
+
 
 # Attach IGW to VPC
   AttachGateway:
@@ -50,38 +50,75 @@ Resources:
       InternetGatewayId: !Ref BankInternetGateway
 
 #Subnet 1
-Subnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref LuBankVPC
-      CidrBlock: 10.10.1.0/24
-      AvailabilityZone: "ap-southeast-1a"
-      MapPublicIpOnLaunch: yes
-      Tags: 
-        - Key: "Name" 
-        Value: "PublicSubnet 1 Bank VPC"
+  Subnet1:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref BankVPC
+        CidrBlock: 10.10.1.0/24
+        AvailabilityZone: "ap-southeast-1a"
+        MapPublicIpOnLaunch: yes
+        Tags:
+        - Key: "Name"
+          Value: "Bank Subnet 1"
+
 
 #Subnet 2
-Subnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref LuBankVPC
-      CidrBlock: 10.10.2.0/24
-      AvailabilityZone: "ap-southeast-1b"
-      MapPublicIpOnLaunch: yes
-      Tags: 
-        - Key: "Name" 
-        Value: "PublicSubnet 1 Bank VPC"
-  
+  Subnet2:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref BankVPC
+        CidrBlock: 10.10.2.0/24
+        AvailabilityZone: "ap-southeast-1b"
+        MapPublicIpOnLaunch: yes
+        Tags:
+        - Key: "Name"
+        Value: "Bank Subnet 2"
+    
 # Subnet 3
   Subnet3:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref LuBankVPC
+      VpcId: !Ref BankVPC
       CidrBlock: 10.10.3.0/24
       AvailabilityZone: "ap-southeast-1c"
       MapPublicIpOnLaunch: yes
-      Tags: 
-        - Key: "Name" 
-        Value: "PublicSubnet 1 Bank VPC"
+      Tags:
+      - Key: "Name"
+        Value: "Bank Subnet 3"
 
+# Public Route Table
+  BankRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref BankVPC
+      Tags:
+      - Key: "Name"
+        Value: "Bank Public Route Table"
+
+  Route:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref BankRouteTable
+       DestinationCidrBlock: 0.0.0.0/0
+       GatewayId: !Ref BankInternetGateway
+
+  # Route association for Subnet 1
+  Subnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet1
+      RouteTableId: !Ref BankRouteTable
+        
+# Route association for Subnet 2
+  Subnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet2
+      RouteTableId: !Ref BankRouteTable
+
+# Route association for Subnet 3
+  Subnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet3
+      RouteTableId: !Ref BankRouteTable
