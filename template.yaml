@@ -159,6 +159,9 @@ Resources:
         - !Ref Subnet3
       TargetGroupARNs:
         - !Ref BankALBTargetGroup
+      Tags:
+      - Key: "Name"
+        Value: "Bank Auto Scaling Group"
 
 # Scaling Policy
   BankScalingPolicy:
@@ -170,3 +173,39 @@ Resources:
         PredefinedMetricSpecification:
           PredefinedMetricType: ASGAverageCPUUtilization
         TargetValue: '50'
+
+  # Application Load Balancer
+  BankApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: "BankALB"
+      SecurityGroups: 
+        - !Ref BankSG
+      Subnets: 
+        - !Ref Subnet1
+        - !Ref Subnet2
+        - !Ref Subnet3
+      Tags:
+      - Key: "Name"
+        Value: "Bank Application Load Balancer"
+
+  # ALB Target Group
+  BankALBTargetGroup : 
+    Type : 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties : 
+      HealthCheckIntervalSeconds : '30'
+      HealthCheckTimeoutSeconds : '5'
+      Port : '80'
+      Protocol : HTTP
+      VpcId: !Ref BankVPC
+
+  # ALB Listener
+  BankALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref BankALBTargetGroup
+      LoadBalancerArn: !Ref BankApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
