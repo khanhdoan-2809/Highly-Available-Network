@@ -61,7 +61,6 @@ Resources:
         - Key: "Name"
           Value: "Bank Subnet 1"
 
-
 #Subnet 2
   Subnet2:
     Type: AWS::EC2::Subnet
@@ -123,7 +122,7 @@ Resources:
       SubnetId: !Ref Subnet3
       RouteTableId: !Ref BankRouteTable
 
-# EC2
+# EC2 Launch Template
   BankLaunchTemplate: 
     Type: 'AWS::EC2::LaunchTemplate'
     Properties: 
