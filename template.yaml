@@ -210,7 +210,7 @@ Resources:
   CloudWatchAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties: 
-      AlarmActions: 
+      AlarmActions: # to trigger
         - !Ref BankScalingPolicy
       AlarmDescription: Alarm set for 50% CPU utilization
       ComparisonOperator: GreaterThanThreshold
